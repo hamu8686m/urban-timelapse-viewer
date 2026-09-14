@@ -3,18 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Urban Archive - 街並み変遷ビューア</title>
-  <!-- 軽量・高機能な比較スライダーライブラリ -->
+  <title>Urban Time Explorer - 街並み変遷アーカイブ</title>
+
+  <!-- 比較スライダー -->
   <script defer src="https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/index.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/styles.css" />
+
+  <!-- EXIF解析 (exif-js) -->
+  <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+
+  <!-- 地図ライブラリ (Leaflet.js) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --border: #334155;
+      --bg: #090d16;
+      --card-bg: #131b2e;
+      --border: #23314d;
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --tag-past: #e11d48;
+      --tag-now: #0ea5e9;
     }
 
     * {
@@ -24,11 +36,11 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg);
       color: var(--text);
       line-height: 1.6;
-      padding: 2rem 1rem;
+      padding: 1.5rem 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -36,53 +48,93 @@
 
     header {
       text-align: center;
-      margin-bottom: 2rem;
-      max-width: 700px;
+      margin-bottom: 1.5rem;
+      max-width: 900px;
+      width: 100%;
     }
 
     header h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
+      font-size: 1.7rem;
+      font-weight: 800;
       letter-spacing: -0.02em;
-      margin-bottom: 0.5rem;
       background: linear-gradient(135deg, #38bdf8, #818cf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      margin-bottom: 0.3rem;
     }
 
     header p {
       color: var(--text-muted);
-      font-size: 0.95rem;
+      font-size: 0.88rem;
     }
 
-    .viewer-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
+    /* プリセット地点バー */
+    .preset-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 1.5rem;
       max-width: 900px;
       width: 100%;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
     }
 
-    /* スライダーのコンテナ */
+    .preset-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .preset-btn:hover, .preset-btn.active {
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      border-color: var(--accent);
+    }
+
+    /* メイングリッド配置 */
+    .main-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    @media (min-width: 860px) {
+      .main-container {
+        grid-template-columns: 3fr 2fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    /* スライダー部分 */
     .slider-wrapper {
       position: relative;
       width: 100%;
+      aspect-ratio: 16 / 10;
       background: #000;
-      aspect-ratio: 16 / 9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     img-comparison-slider {
       width: 100%;
       height: 100%;
-      --divider-width: 3px;
-      --divider-color: #ffffff;
-      --default-handle-width: 44px;
       outline: none;
+      --divider-color: #fff;
+      --divider-width: 2px;
+      --default-handle-width: 40px;
     }
 
     img-comparison-slider img {
@@ -92,197 +144,397 @@
       display: block;
     }
 
-    /* ラベルバッジ（Past / Present） */
     .badge {
       position: absolute;
-      top: 16px;
-      padding: 6px 14px;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 700;
+      top: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 800;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       backdrop-filter: blur(8px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       z-index: 10;
       pointer-events: none;
     }
 
-    .badge-past {
-      left: 16px;
-      background: rgba(225, 29, 72, 0.8);
-      color: #fff;
-    }
+    .badge-past { left: 12px; background: rgba(225, 29, 72, 0.85); }
+    .badge-present { right: 12px; background: rgba(14, 165, 233, 0.85); }
 
-    .badge-present {
-      right: 16px;
-      background: rgba(14, 165, 233, 0.8);
-      color: #fff;
-    }
-
-    /* メタ情報セクション */
-    .info-section {
-      padding: 1.5rem;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.25rem;
-    }
-
-    @media (min-width: 640px) {
-      .info-section {
-        grid-template-columns: 2fr 1fr;
-      }
-    }
-
-    .title-area h2 {
-      font-size: 1.3rem;
-      margin-bottom: 0.4rem;
-    }
-
-    .title-area p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .meta-box {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
+    /* アップロードパネル */
+    .upload-box {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
       font-size: 0.85rem;
     }
 
-    .meta-item {
+    .upload-row {
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.4rem;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
     }
 
-    .meta-item:last-child {
-      margin-bottom: 0;
-    }
-
-    .meta-label {
-      color: var(--text-muted);
-    }
-
-    .meta-value {
+    .custom-file-btn {
+      background: #2563eb;
+      color: #fff;
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.78rem;
       font-weight: 600;
-      color: var(--accent);
-      text-decoration: none;
     }
 
-    /* アップロード・差し替えコントローラー */
-    .control-panel {
-      margin-top: 1.5rem;
-      background: var(--card-bg);
-      border: 1px dashed var(--border);
-      border-radius: 12px;
-      padding: 1rem 1.5rem;
-      max-width: 900px;
+    .custom-file-btn:hover { background: #1d4ed8; }
+    input[type="file"] { display: none; }
+
+    #status-msg {
+      font-size: 0.78rem;
+      color: var(--accent);
+      min-height: 1.2em;
+    }
+
+    /* 地図パネル */
+    .map-panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #map {
       width: 100%;
+      height: 320px;
+      background: #020617;
+    }
+
+    .map-controls {
+      padding: 0.8rem 1rem;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
       display: flex;
       flex-wrap: wrap;
-      gap: 1rem;
+      gap: 0.5rem;
       align-items: center;
-      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+
+    .map-layer-btn {
+      background: #1e293b;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .map-layer-btn.active {
+      background: var(--border);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* 情報カード */
+    .info-box {
+      padding: 1.2rem;
       font-size: 0.85rem;
     }
 
-    .file-input-group {
+    .info-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .info-desc {
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 0.8rem;
+    }
+
+    .meta-list {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .file-input-group label {
-      color: var(--text-muted);
-    }
-
-    input[type="file"] {
+      flex-direction: column;
+      gap: 0.3rem;
       font-size: 0.8rem;
-      color: var(--text-muted);
+      border-top: 1px dashed var(--border);
+      padding-top: 0.6rem;
     }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .meta-row span:first-child { color: var(--text-muted); }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>URBAN TIMELAPSE ARCHIVE</h1>
-    <p>街並みや建造物の再開発前後の変化をスライダーで直感的に比較・検証します。</p>
+    <h1>URBAN TIME EXPLORER</h1>
+    <p>現在の写真をアップロードすると、位置情報から過去写真と国土地理院の年代別空中写真を自動連動します。</p>
   </header>
 
-  <div class="viewer-card">
-    <div class="slider-wrapper">
-      <span class="badge badge-past">PAST (2008)</span>
-      <span class="badge badge-present">PRESENT (NOW)</span>
-
-      <img-comparison-slider>
-        <!-- 過去の写真 (スライダー左側) -->
-        <img
-          id="past-img"
-          slot="first"
-          src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80"
-          alt="過去の写真"
-        />
-        <!-- 現在の写真 (スライダー右側) -->
-        <img
-          id="present-img"
-          slot="second"
-          src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80"
-          alt="現在の写真"
-        />
-      </img-comparison-slider>
-    </div>
-
-    <div class="info-section">
-      <div class="title-area">
-        <h2 id="location-title">渋谷駅周辺・高層街区再開発</h2>
-        <p id="location-desc">
-          旧東急東横線地上駅舎および周辺街区の撤去に伴い、超高層複合商業ビル群への刷新が行われたエリア。旧来の歩行導線と水路（渋谷川）の親水広場整備が完了。
-        </p>
-      </div>
-      <div class="meta-box">
-        <div class="meta-item">
-          <span class="meta-label">座標:</span>
-          <span class="meta-value">35.6580, 139.7016</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">撮影年代差:</span>
-          <span class="meta-value">約 16 年</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">マップ:</span>
-          <a class="meta-value" href="https://www.google.com/maps?q=35.6580,139.7016" target="_blank" rel="noopener">Google Maps ↗</a>
-        </div>
-      </div>
-    </div>
+  <!-- プリセット複数地点バー -->
+  <div class="preset-bar">
+    <button class="preset-btn active" onclick="loadPreset(0)">天王洲アイル（倉庫街再生）</button>
+    <button class="preset-btn" onclick="loadPreset(1)">渋谷駅周辺（高層街区）</button>
+    <button class="preset-btn" onclick="loadPreset(2)">秋葉原駅前（電気街変遷）</button>
   </div>
 
-  <!-- 自分の写真をテスト差し替えできるパネル -->
-  <div class="control-panel">
-    <div class="file-input-group">
-      <label>過去写真:</label>
-      <input type="file" accept="image/*" onchange="previewImage(event, 'past-img')" />
+  <div class="main-container">
+    
+    <!-- 左側：Before/After スライダー ＆ 写真アップロード -->
+    <div class="card">
+      <div class="slider-wrapper">
+        <span class="badge badge-past" id="past-badge">PAST</span>
+        <span class="badge badge-present">PRESENT</span>
+
+        <img-comparison-slider>
+          <img id="past-img" slot="first" src="" alt="過去写真" />
+          <img id="present-img" slot="second" src="" alt="現在写真" />
+        </img-comparison-slider>
+      </div>
+
+      <div class="upload-box">
+        <div class="upload-row">
+          <label class="custom-file-btn">
+            📷 現在写真をアップロード（EXIF自動解析）
+            <input type="file" accept="image/*" onchange="handleUserPhoto(event)" />
+          </label>
+          <span id="coord-display" style="font-size: 0.78rem; color: var(--text-muted);"></span>
+        </div>
+        <div id="status-msg">写真を選択すると、GPSから過去写真と地図を自動取得します</div>
+      </div>
+
+      <div class="info-box">
+        <div class="info-title" id="location-name">地点名</div>
+        <div class="info-desc" id="location-desc">解説テキスト</div>
+        <div class="meta-list">
+          <div class="meta-row">
+            <span>座標</span>
+            <span id="meta-coords">--</span>
+          </div>
+          <div class="meta-row">
+            <span>過去写真ソース</span>
+            <span id="meta-source">--</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="file-input-group">
-      <label>現在写真:</label>
-      <input type="file" accept="image/*" onchange="previewImage(event, 'present-img')" />
+
+    <!-- 右側：地図 ＆ 国土地理院・年代別空中写真 -->
+    <div class="card map-panel">
+      <div id="map"></div>
+      <div class="map-controls">
+        <span style="color: var(--text-muted); font-size: 0.75rem;">空中写真年代:</span>
+        <button class="map-layer-btn active" onclick="switchTile('now')">現代</button>
+        <button class="map-layer-btn" onclick="switchTile('1988')">1988〜90年</button>
+        <button class="map-layer-btn" onclick="switchTile('1974')">1974〜78年</button>
+        <button class="map-layer-btn" onclick="switchTile('1961')">1961〜69年</button>
+      </div>
     </div>
+
   </div>
 
   <script>
-    // ローカルの写真を選択して即座にスライダーへ反映する処理
-    function previewImage(event, targetId) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          document.getElementById(targetId).src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+    // プリセットデータ（天王洲アイル、渋谷、秋葉原）
+    const PRESETS = [
+      {
+        name: "天王洲アイル（臨海倉庫街・アート再生）",
+        desc: "かつての沿岸流通・倉庫街から、ボンドストリートを中心とする運河沿いのアート・文化発信拠点へとリノベーションされた臨海都市エリア。",
+        lat: 35.6225,
+        lng: 139.7505,
+        pastImg: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Tennozu_Isle_1992.jpg/1024px-Tennozu_Isle_1992.jpg",
+        presentImg: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=1200&q=80",
+        pastLabel: "PAST (1990s)",
+        source: "Wikimedia Commons (Archive)"
+      },
+      {
+        name: "渋谷駅周辺・高層街区再開発",
+        desc: "東急東横線地上ホームの地下化および渋谷川の再生、スクランブルスクエアなどの超高層複合施設群への全面刷新。",
+        lat: 35.6580,
+        lng: 139.7016,
+        pastImg: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Tokyu_Toyoko_Line_Shibuya_Station_Platform.jpg/1024px-Tokyu_Toyoko_Line_Shibuya_Station_Platform.jpg",
+        presentImg: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80",
+        pastLabel: "PAST (2008)",
+        source: "Wikimedia Commons (CC BY-SA)"
+      },
+      {
+        name: "秋葉原駅前・電気街地区",
+        desc: "旧国鉄貨物駅ヤード跡地（UDX・ダイビル）の開発と、電気街からサブカルチャー・IT複合エリアへの機能転換。",
+        lat: 35.6983,
+        lng: 139.7731,
+        pastImg: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Akihabara_1985.jpg/1024px-Akihabara_1985.jpg",
+        presentImg: "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1200&q=80",
+        pastLabel: "PAST (1985)",
+        source: "Wikimedia Commons"
+      }
+    ];
+
+    // 地図とタイルの初期化（国土地理院タイル）
+    let map, currentMarker;
+    const tileLayers = {
+      now: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg', {
+        attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a> (最新空中写真)',
+        maxZoom: 18
+      }),
+      '1988': L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/gazo4/{z}/{x}/{y}.jpg', {
+        attribution: '&copy; 国土地理院 (1988〜1990年)',
+        maxZoom: 17
+      }),
+      '1974': L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/gazo1/{z}/{x}/{y}.jpg', {
+        attribution: '&copy; 国土地理院 (1974〜1978年)',
+        maxZoom: 17
+      }),
+      '1961': L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/ort_old10/{z}/{x}/{y}.png', {
+        attribution: '&copy; 国土地理院 (1961〜1969年)',
+        maxZoom: 17
+      })
+    };
+
+    let activeTileKey = 'now';
+
+    function initMap(lat, lng) {
+      map = L.map('map', { zoomControl: true }).setView([lat, lng], 15);
+      tileLayers[activeTileKey].addTo(map);
+      currentMarker = L.marker([lat, lng]).addTo(map);
+    }
+
+    function switchTile(key) {
+      if (map && tileLayers[key]) {
+        map.removeLayer(tileLayers[activeTileKey]);
+        tileLayers[key].addTo(map);
+        activeTileKey = key;
+
+        document.querySelectorAll('.map-layer-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.getAttribute('onclick').includes(key)) btn.classList.add('active');
+        });
       }
     }
+
+    // プリセット適用
+    function loadPreset(index) {
+      const data = PRESETS[index];
+      document.querySelectorAll('.preset-btn').forEach((b, i) => {
+        b.classList.toggle('active', i === index);
+      });
+
+      document.getElementById('past-img').src = data.pastImg;
+      document.getElementById('present-img').src = data.presentImg;
+      document.getElementById('past-badge').textContent = data.pastLabel;
+      document.getElementById('location-name').textContent = data.name;
+      document.getElementById('location-desc').textContent = data.desc;
+      document.getElementById('meta-coords').textContent = `${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}`;
+      document.getElementById('meta-source').textContent = data.source;
+
+      if (!map) {
+        initMap(data.lat, data.lng);
+      } else {
+        map.setView([data.lat, data.lng], 15);
+        currentMarker.setLatLng([data.lat, data.lng]);
+      }
+    }
+
+    // ユーザー写真アップロード時の処理（EXIF解析 ＆ API自動検索）
+    function handleUserPhoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const status = document.getElementById('status-msg');
+      status.textContent = "写真を読み込み中...";
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        // 現在写真スライダーに即座に反映
+        document.getElementById('present-img').src = e.target.result;
+
+        // EXIFからGPSを抽出
+        EXIF.getData(file, function() {
+          const lat = EXIF.getTag(this, "GPSLatitude");
+          const lon = EXIF.getTag(this, "GPSLongitude");
+          const latRef = EXIF.getTag(this, "GPSLatitudeRef") || "N";
+          const lonRef = EXIF.getTag(this, "GPSLongitudeRef") || "E";
+
+          if (lat && lon) {
+            const decLat = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
+            const decLng = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
+
+            status.textContent = `📍 座標特定: [${decLat.toFixed(4)}, ${decLng.toFixed(4)}] 周辺のアーカイブ写真を検索中...`;
+            document.getElementById('meta-coords').textContent = `${decLat.toFixed(4)}, ${decLng.toFixed(4)}`;
+            document.getElementById('location-name').textContent = "アップロード地点（現地調査）";
+            document.getElementById('location-desc').textContent = "ユーザー撮影写真のEXIFから位置を自動特定しました。";
+
+            // 地図をその場所へ移動
+            map.setView([decLat, decLng], 16);
+            currentMarker.setLatLng([decLat, decLng]);
+
+            // Wikimedia Commons APIで過去写真を自動検索
+            searchWikimediaHistoricalPhotos(decLat, decLng);
+          } else {
+            status.textContent = "⚠️ 写真にGPS位置情報（EXIF）が含まれていませんでした。現在写真のみ更新しました。";
+          }
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // DMS(度分秒)を十進座標に変換
+    function convertDMSToDD(degrees, minutes, seconds, direction) {
+      let dd = degrees + minutes / 60 + seconds / (60 * 60);
+      if (direction === "S" || direction === "W") dd = dd * -1;
+      return dd;
+    }
+
+    // Wikimedia Commons APIを使った近隣アーカイブ写真検索
+    async function searchWikimediaHistoricalPhotos(lat, lng) {
+      const status = document.getElementById('status-msg');
+      try {
+        const radius = 800; // 半径800m以内の写真
+        const url = `https://commons.wikimedia.org/w/api.php?origin=*&action=query&list=geosearch&gsprimary=all&gsnamespace=6&gscoord=${lat}|${lng}&gsradius=${radius}&gslimit=10&format=json`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+        const results = data.query?.geosearch;
+
+        if (results && results.length > 0) {
+          // 最も関連性の高そうな写真の画像URLを取得
+          const pageId = results[0].pageid;
+          fetchImageDetails(pageId);
+        } else {
+          status.textContent = "指定座標の近隣にパブリック写真が見つかりませんでした。右側の空中写真を切り替えて変遷をご確認ください。";
+        }
+      } catch (err) {
+        status.textContent = "過去写真の自動検索中にエラーが発生しました。";
+        console.error(err);
+      }
+    }
+
+    async function fetchImageDetails(pageId) {
+      const status = document.getElementById('status-msg');
+      const url = `https://commons.wikimedia.org/w/api.php?origin=*&action=query&pageids=${pageId}&prop=imageinfo&iiprop=url|extmetadata&format=json`;
+      
+      const res = await fetch(url);
+      const data = await res.json();
+      const info = data.query?.pages[pageId]?.imageinfo?.[0];
+
+      if (info && info.url) {
+        document.getElementById('past-img').src = info.url;
+        const date = info.extmetadata?.DateTimeOriginal?.value || "ARCHIVE";
+        document.getElementById('past-badge').textContent = `PAST (${date.slice(0, 4)})`;
+        document.getElementById('meta-source').textContent = `Wikimedia Commons: ${data.query.pages[pageId].title}`;
+        status.textContent = `✅ 周辺のアーカイブ写真が見つかりました！（${date.slice(0, 4)}年頃）`;
+      }
+    }
+
+    // 初回ロード
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPreset(0);
+    });
   </script>
 
 </body>
