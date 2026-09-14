@@ -331,7 +331,7 @@
 
   <header>
     <h1>TOKYO URBAN ARCHIVE</h1>
-    <p>都内オープンアーカイブ連携版：完全無料・登録不要で過去写真と国土地理院空中写真を比較</p>
+    <p>都内の過去写真と国土地理院空中写真を比較</p>
   </header>
 
   <!-- 3地点スロット -->
@@ -525,7 +525,7 @@
         }
 
         if (allFetchedPhotos.length > 0) {
-          status.textContent = `✅ 周辺で ${allFetchedPhotos.length} 枚の過去写真を発見！ 下のサムネイルから選んで比較できます。`;
+          status.textContent = `✅ 周辺で ${allFetchedPhotos.length} 枚の過去写真を発見！ 上のサムネイルから選んで比較できます。`;
           filterByEra(currentEraFilter);
         } else {
           status.textContent = "この地点の近隣写真が見つかりませんでした。右側の空中写真を切り替えて変遷をご確認ください。";
