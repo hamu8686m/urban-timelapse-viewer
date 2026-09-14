@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tokyo Urban Timelapse - 都内街並み変遷アーカイブ</title>
+  <title>Tokyo Urban Archive - 年代別都市変遷ビューア</title>
 
   <!-- 比較スライダー -->
   <script defer src="https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/index.js"></script>
@@ -42,7 +42,7 @@
 
     header {
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
       max-width: 950px;
       width: 100%;
     }
@@ -61,25 +61,25 @@
       font-size: 0.88rem;
     }
 
-    /* ユーザーが設定する3つのカスタム地点スロット */
+    /* 3地点スロットバー */
     .slot-bar-container {
       max-width: 1000px;
       width: 100%;
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
+      padding: 0.9rem;
+      margin-bottom: 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 0.8rem;
+      gap: 0.7rem;
     }
 
     .slot-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       color: var(--accent);
     }
@@ -94,13 +94,10 @@
       background: #1e293b;
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 0.5rem 1rem;
+      padding: 0.45rem 0.9rem;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
       transition: all 0.2s;
     }
 
@@ -111,18 +108,11 @@
       border-color: var(--accent);
     }
 
-    .edit-slot-btn {
-      font-size: 0.72rem;
-      opacity: 0.7;
-      text-decoration: underline;
-    }
-
-    /* 地点検索バー（都内検索＆手動設定） */
     .search-row {
       display: flex;
       gap: 0.5rem;
       background: rgba(15, 23, 42, 0.6);
-      padding: 0.5rem;
+      padding: 0.4rem;
       border-radius: 8px;
       border: 1px solid var(--border);
     }
@@ -148,11 +138,11 @@
       cursor: pointer;
     }
 
-    /* メイン2カラム配置 */
+    /* メイングリッド */
     .main-container {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: 1.25rem;
       max-width: 1000px;
       width: 100%;
     }
@@ -212,31 +202,65 @@
     .badge-past { left: 12px; background: rgba(225, 29, 72, 0.85); }
     .badge-present { right: 12px; background: rgba(14, 165, 233, 0.85); }
 
-    /* アップロード・位置解析セクション */
-    .upload-box {
-      padding: 1rem 1.25rem;
+    /* 年代フィルターバー */
+    .era-bar {
+      padding: 0.75rem 1rem;
+      background: rgba(15, 23, 42, 0.7);
       border-top: 1px solid var(--border);
-      background: rgba(15, 23, 42, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      font-size: 0.78rem;
+    }
+
+    .era-label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .era-btn {
+      background: #1e293b;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .era-btn:hover, .era-btn.active {
+      background: #f43f5e;
+      border-color: #f43f5e;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* アップロードセクション */
+    .upload-box {
+      padding: 0.85rem 1rem;
+      border-top: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
-      font-size: 0.85rem;
+      gap: 0.5rem;
+      font-size: 0.82rem;
     }
 
     .upload-action-row {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.6rem;
       flex-wrap: wrap;
     }
 
     .custom-file-btn {
       background: #2563eb;
       color: #fff;
-      padding: 0.4rem 0.85rem;
+      padding: 0.35rem 0.8rem;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
     }
 
@@ -244,35 +268,29 @@
     input[type="file"] { display: none; }
 
     #status-msg {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--accent);
-      min-height: 1.4em;
+      min-height: 1.3em;
     }
 
-    /* 手動位置指定フォーム（GPSなし時のフォールバック） */
     #manual-geo-form {
       display: none;
       background: rgba(30, 41, 59, 0.8);
       border: 1px dashed var(--accent);
       border-radius: 8px;
-      padding: 0.75rem;
+      padding: 0.6rem;
       margin-top: 0.3rem;
-    }
-
-    #manual-geo-form p {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      margin-bottom: 0.4rem;
     }
 
     .inline-search {
       display: flex;
       gap: 0.4rem;
+      margin-top: 0.3rem;
     }
 
     .inline-search input {
       flex: 1;
-      padding: 0.3rem 0.6rem;
+      padding: 0.3rem 0.5rem;
       background: #0f172a;
       border: 1px solid var(--border);
       color: #fff;
@@ -285,7 +303,7 @@
       border: none;
       color: #000;
       font-weight: 600;
-      padding: 0.3rem 0.7rem;
+      padding: 0.3rem 0.6rem;
       border-radius: 4px;
       cursor: pointer;
       font-size: 0.78rem;
@@ -293,29 +311,29 @@
 
     /* 情報カード */
     .info-box {
-      padding: 1.2rem;
-      font-size: 0.85rem;
+      padding: 1rem;
+      font-size: 0.82rem;
     }
 
     .info-title {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       font-weight: 700;
       margin-bottom: 0.3rem;
     }
 
     .info-desc {
       color: var(--text-muted);
-      line-height: 1.5;
-      margin-bottom: 0.8rem;
+      line-height: 1.4;
+      margin-bottom: 0.6rem;
     }
 
     .meta-list {
       display: flex;
       flex-direction: column;
-      gap: 0.3rem;
-      font-size: 0.8rem;
+      gap: 0.25rem;
+      font-size: 0.78rem;
       border-top: 1px dashed var(--border);
-      padding-top: 0.6rem;
+      padding-top: 0.5rem;
     }
 
     .meta-row {
@@ -339,21 +357,21 @@
     }
 
     .map-controls {
-      padding: 0.8rem 1rem;
+      padding: 0.75rem 1rem;
       background: var(--card-bg);
       border-top: 1px solid var(--border);
       display: flex;
       flex-wrap: wrap;
       gap: 0.4rem;
       align-items: center;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
     }
 
     .map-layer-btn {
       background: #1e293b;
       border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 0.3rem 0.6rem;
+      padding: 0.25rem 0.55rem;
       border-radius: 6px;
       cursor: pointer;
     }
@@ -369,14 +387,14 @@
 
   <header>
     <h1>TOKYO URBAN ARCHIVE</h1>
-    <p>都内の街並み・建築の変遷ビューア。写真の位置情報または手動検索から過去写真・航空写真を自動連動します。</p>
+    <p>都内の街並み・建築変遷ビューア。年代指定によるアーカイブ写真抽出と国土地理院空中写真の連動。</p>
   </header>
 
-  <!-- ユーザーがカスタムできる3地点スロット -->
+  <!-- 3地点スロット -->
   <div class="slot-bar-container">
     <div class="slot-header">
-      <span>📍 調査地点スロット（クリックで切替 / 検索でこのスロットを上書き）</span>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">※設定はブラウザに自動保存されます</span>
+      <span>📍 調査地点スロット（クリックで切替 / 検索で更新）</span>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">設定はブラウザに自動保存されます</span>
     </div>
     
     <div class="slot-tabs">
@@ -391,7 +409,6 @@
       </button>
     </div>
 
-    <!-- 選択中のスロットの地点を都内検索で書き換えるバー -->
     <div class="search-row">
       <input type="text" id="place-query" placeholder="選択中スロットの地点を変更（例: 芝浦、新木場、日本橋、神保町...）" />
       <button onclick="searchAndAssignTokyoPlace()">この地点を保存</button>
@@ -400,7 +417,7 @@
 
   <div class="main-container">
     
-    <!-- 左側：Before/After ＆ アップロード -->
+    <!-- 左側：Before/After ＆ 年代選択 ＆ アップロード -->
     <div class="card">
       <div class="slider-wrapper">
         <span class="badge badge-past" id="past-badge">PAST</span>
@@ -410,6 +427,16 @@
           <img id="past-img" slot="first" src="" alt="過去写真" />
           <img id="present-img" slot="second" src="" alt="現在写真" />
         </img-comparison-slider>
+      </div>
+
+      <!-- 過去写真の年代セレクター -->
+      <div class="era-bar">
+        <span class="era-label">⏳ 過去写真の年代:</span>
+        <button class="era-btn active" onclick="setEraFilter('all')">全年代</button>
+        <button class="era-btn" onclick="setEraFilter('pre1980')">〜1970年代</button>
+        <button class="era-btn" onclick="setEraFilter('1980s-90s')">1980〜90年代</button>
+        <button class="era-btn" onclick="setEraFilter('2000s')">2000年代</button>
+        <button class="era-btn" onclick="setEraFilter('2010s')">2010年代</button>
       </div>
 
       <div class="upload-box">
@@ -422,11 +449,10 @@
 
         <div id="status-msg">写真を選択すると、自動で位置を特定して過去写真を検索します。</div>
 
-        <!-- GPSがない場合のフォールバック入力欄 -->
         <div id="manual-geo-form">
-          <p>⚠️ <strong>写真にGPS位置情報がありませんでした。</strong><br>場所の名前を入力するか、右の地図上を直接クリックして場所を指定してください。</p>
+          <p style="font-size: 0.75rem; color: var(--text-muted);">⚠️ 写真にGPS位置情報がありませんでした。場所の名前を入力するか、右の地図上を直接クリックしてください。</p>
           <div class="inline-search">
-            <input type="text" id="manual-place-input" placeholder="撮影した場所（例: 天王洲ボンドストリート）" />
+            <input type="text" id="manual-place-input" placeholder="撮影場所（例: 天王洲ボンドストリート）" />
             <button onclick="resolveManualLocation()">場所を決定</button>
           </div>
         </div>
@@ -463,7 +489,7 @@
   </div>
 
   <script>
-    // デフォルトの3地点（都内）
+    // デフォルトスロット
     const DEFAULT_SLOTS = [
       {
         name: "天王洲アイル（臨海倉庫街・再生）",
@@ -497,11 +523,12 @@
       }
     ];
 
-    // LocalStorageから3地点データを読み込み
     let userSlots = JSON.parse(localStorage.getItem('tokyo_urban_slots')) || DEFAULT_SLOTS;
     let activeSlotIndex = 0;
+    let currentSelectedEra = 'all';
+    let currentFoundPhotos = []; // 周辺で見つかった過去写真の全リストを保持
 
-    // 地図とタイルの初期化
+    // 地図と国土地理院タイル
     let map, currentMarker;
     const tileLayers = {
       now: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg', {
@@ -528,7 +555,6 @@
       tileLayers[activeTileKey].addTo(map);
       currentMarker = L.marker([lat, lng]).addTo(map);
 
-      // 地図クリックで手動位置指定も可能にする
       map.on('click', function(e) {
         applyCoordinates(e.latlng.lat, e.latlng.lng, "地図クリック指定地点");
       });
@@ -545,11 +571,12 @@
       }
     }
 
-    // スロット切り替え
+    // スロット選択
     function selectSlot(index) {
       activeSlotIndex = index;
       renderSlotUI();
       applySlotData(userSlots[index]);
+      searchWikimediaHistoricalPhotos(userSlots[index].lat, userSlots[index].lng);
     }
 
     function renderSlotUI() {
@@ -557,7 +584,7 @@
         const btn = document.getElementById(`slot-btn-${i}`);
         const nameSpan = document.getElementById(`slot-name-${i}`);
         btn.classList.toggle('active', i === activeSlotIndex);
-        nameSpan.textContent = `地点${i + 1}: ${userSlots[i].name.slice(0, 10)}`;
+        nameSpan.textContent = `地点${i + 1}: ${userSlots[i].name.slice(0, 9)}`;
       }
     }
 
@@ -578,7 +605,58 @@
       }
     }
 
-    // 都内の地名検索（Nominatim API・東京にバウンディング）
+    // 年代ボタン切り替え処理
+    function setEraFilter(eraKey) {
+      currentSelectedEra = eraKey;
+      document.querySelectorAll('.era-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('onclick').includes(eraKey));
+      });
+
+      // 対応する国土地理院空中写真も連動切り替え
+      if (eraKey === 'pre1980') switchTile('1974');
+      else if (eraKey === '1980s-90s') switchTile('1988');
+      else switchTile('now');
+
+      filterAndApplyEraPhoto();
+    }
+
+    function filterAndApplyEraPhoto() {
+      const status = document.getElementById('status-msg');
+      if (!currentFoundPhotos || currentFoundPhotos.length === 0) return;
+
+      // 撮影年で絞り込み
+      let targetList = currentFoundPhotos.filter(item => {
+        const year = item.year;
+        if (!year) return false;
+        if (currentSelectedEra === 'all') return true;
+        if (currentSelectedEra === 'pre1980') return year < 1980;
+        if (currentSelectedEra === '1980s-90s') return year >= 1980 && year < 2000;
+        if (currentSelectedEra === '2000s') return year >= 2000 && year < 2010;
+        if (currentSelectedEra === '2010s') return year >= 2010 && year < 2020;
+        return true;
+      });
+
+      if (targetList.length > 0) {
+        // 最も古い／指定年代に合う写真を選択
+        const selected = targetList[0];
+        document.getElementById('past-img').src = selected.url;
+        document.getElementById('past-badge').textContent = `PAST (${selected.year}年)`;
+        document.getElementById('meta-source').textContent = `Wikimedia: ${selected.title}`;
+        status.textContent = `✅ 【${getEraLabelName(currentSelectedEra)}】のアーカイブ写真を適用しました（${selected.year}年撮影）`;
+      } else {
+        status.textContent = `⚠️ この地点の【${getEraLabelName(currentSelectedEra)}】の写真が見つかりませんでした。右側の空中写真で変遷をご覧ください。`;
+      }
+    }
+
+    function getEraLabelName(key) {
+      if (key === 'pre1980') return '〜1970年代';
+      if (key === '1980s-90s') return '1980〜90年代';
+      if (key === '2000s') return '2000年代';
+      if (key === '2010s') return '2010年代';
+      return '全年代';
+    }
+
+    // 都内検索
     async function searchAndAssignTokyoPlace() {
       const query = document.getElementById('place-query').value.trim();
       if (!query) return;
@@ -587,7 +665,6 @@
       status.textContent = `「${query}」の位置を検索中...`;
 
       try {
-        // 都内優先検索
         const url = `https://nominatim.openstreetmap.org/search?format=json&q=東京都+${encodeURIComponent(query)}&limit=1`;
         const res = await fetch(url);
         const data = await res.json();
@@ -597,10 +674,9 @@
           const lng = parseFloat(data[0].lon);
           const name = query;
 
-          // 現在のスロットを更新して保存
           userSlots[activeSlotIndex] = {
             name: name,
-            desc: `東京都内「${name}」の変遷。航空写真や周辺アーカイブ写真を参照しています。`,
+            desc: `東京都「${name}」の変遷。航空写真や過去アーカイブ写真を参照しています。`,
             lat: lat,
             lng: lng,
             pastImg: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Tennozu_Isle_1992.jpg/1024px-Tennozu_Isle_1992.jpg",
@@ -612,20 +688,19 @@
           localStorage.setItem('tokyo_urban_slots', JSON.stringify(userSlots));
           renderSlotUI();
           applySlotData(userSlots[activeSlotIndex]);
-
-          // 周辺の過去写真も再検索
           searchWikimediaHistoricalPhotos(lat, lng);
-          status.textContent = `✅ 地点${activeSlotIndex + 1}を「${name}」に更新・保存しました。`;
+
+          status.textContent = `✅ 地点${activeSlotIndex + 1}を「${name}」に保存しました。`;
           document.getElementById('place-query').value = "";
         } else {
-          status.textContent = `⚠️ 「${query}」の位置が見つかりませんでした。別の名称でお試しください。`;
+          status.textContent = `⚠️ 「${query}」が見つかりませんでした。`;
         }
       } catch (e) {
         status.textContent = "検索エラーが発生しました。";
       }
     }
 
-    // 写真アップロード時の処理（EXIF解析 ＆ GPSなし時のフォールバック）
+    // 写真アップロード
     function handlePhotoUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -648,9 +723,9 @@
           if (lat && lon) {
             const decLat = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
             const decLng = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
-            applyCoordinates(decLat, decLng, "撮影写真（EXIF自動特定）");
+            applyCoordinates(decLat, decLng, "現地撮影写真（EXIF特定）");
           } else {
-            status.textContent = "⚠️ 写真にGPS位置情報がありませんでした。下の入力欄または地図をクリックして場所を指定してください。";
+            status.textContent = "⚠️ 写真にGPS位置情報がありませんでした。場所を入力するか、右の地図をクリックしてください。";
             manualForm.style.display = "block";
           }
         });
@@ -658,20 +733,17 @@
       reader.readAsDataURL(file);
     }
 
-    // DMSを十進に変換
     function convertDMSToDD(degrees, minutes, seconds, direction) {
       let dd = degrees + minutes / 60 + seconds / (60 * 60);
       if (direction === "S" || direction === "W") dd = dd * -1;
       return dd;
     }
 
-    // 手動地名解決（GPSがなかった場合の入力）
     async function resolveManualLocation() {
       const input = document.getElementById('manual-place-input').value.trim();
       if (!input) return;
-
       const status = document.getElementById('status-msg');
-      status.textContent = `「${input}」の位置を特定中...`;
+      status.textContent = `「${input}」を特定中...`;
 
       try {
         const url = `https://nominatim.openstreetmap.org/search?format=json&q=東京都+${encodeURIComponent(input)}&limit=1`;
@@ -683,22 +755,20 @@
           document.getElementById('manual-geo-form').style.display = "none";
           applyCoordinates(lat, lng, `手動指定: ${input}`);
         } else {
-          status.textContent = `「${input}」が見つかりませんでした。より具体的な駅名や施設名で入力してください。`;
+          status.textContent = `「${input}」が見つかりませんでした。`;
         }
       } catch (e) {
-        status.textContent = "位置特定中にエラーが発生しました。";
+        status.textContent = "位置特定エラー。";
       }
     }
 
-    // 座標が確定した共通処理
     function applyCoordinates(lat, lng, labelName) {
       const status = document.getElementById('status-msg');
-      status.textContent = `📍 座標特定 [${lat.toFixed(4)}, ${lng.toFixed(4)}]：周辺の過去写真を検索中...`;
+      status.textContent = `📍 座標 [${lat.toFixed(4)}, ${lng.toFixed(4)}] の過去写真を検索中...`;
 
       document.getElementById('meta-coords').textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
       document.getElementById('location-name').textContent = labelName;
 
-      // 現在のスロットに座標を反映
       userSlots[activeSlotIndex].lat = lat;
       userSlots[activeSlotIndex].lng = lng;
       userSlots[activeSlotIndex].name = labelName;
@@ -708,48 +778,69 @@
       map.setView([lat, lng], 16);
       currentMarker.setLatLng([lat, lng]);
 
-      // 過去写真検索
       searchWikimediaHistoricalPhotos(lat, lng);
     }
 
-    // Wikimedia Commons APIで近隣写真検索
+    // Wikimedia Commons APIで指定半径内の写真をまとめて取得＆年代パース
     async function searchWikimediaHistoricalPhotos(lat, lng) {
       const status = document.getElementById('status-msg');
+      currentFoundPhotos = [];
+
       try {
-        const radius = 1000; // 半径1km
-        const url = `https://commons.wikimedia.org/w/api.php?origin=*&action=query&list=geosearch&gsprimary=all&gsnamespace=6&gscoord=${lat}|${lng}&gsradius=${radius}&gslimit=10&format=json`;
+        const radius = 1200; // 半径1.2km
+        const url = `https://commons.wikimedia.org/w/api.php?origin=*&action=query&list=geosearch&gsprimary=all&gsnamespace=6&gscoord=${lat}|${lng}&gsradius=${radius}&gslimit=20&format=json`;
 
         const res = await fetch(url);
         const data = await res.json();
         const results = data.query?.geosearch;
 
         if (results && results.length > 0) {
-          fetchImageDetails(results[0].pageid);
+          const pageIds = results.map(r => r.pageid).join('|');
+          fetchBatchImageDetails(pageIds);
         } else {
-          status.textContent = "指定座標の近隣に地上写真が見つかりませんでした。右側の「1988年」「1974年」等の空中写真で変遷をご確認ください。";
+          status.textContent = "指定座標の近隣に地上写真が見つかりませんでした。右側の空中写真を年代別に切り替えて変遷をご確認ください。";
         }
       } catch (err) {
-        status.textContent = "アーカイブ検索中にエラーが発生しました。";
+        status.textContent = "過去写真の検索中に通信エラーが発生しました。";
       }
     }
 
-    async function fetchImageDetails(pageId) {
+    async function fetchBatchImageDetails(pageIds) {
       const status = document.getElementById('status-msg');
-      const url = `https://commons.wikimedia.org/w/api.php?origin=*&action=query&pageids=${pageId}&prop=imageinfo&iiprop=url|extmetadata&format=json`;
+      const url = `https://commons.wikimedia.org/w/api.php?origin=*&action=query&pageids=${pageIds}&prop=imageinfo&iiprop=url|extmetadata&format=json`;
+      
       const res = await fetch(url);
       const data = await res.json();
-      const info = data.query?.pages[pageId]?.imageinfo?.[0];
+      const pages = data.query?.pages;
 
-      if (info && info.url) {
-        document.getElementById('past-img').src = info.url;
-        const date = info.extmetadata?.DateTimeOriginal?.value || "ARCHIVE";
-        document.getElementById('past-badge').textContent = `PAST (${date.slice(0, 4)})`;
-        document.getElementById('meta-source').textContent = `Wikimedia: ${data.query.pages[pageId].title}`;
-        status.textContent = `✅ 周辺のアーカイブ写真をセットしました（${date.slice(0, 4)}年頃）`;
+      currentFoundPhotos = [];
+
+      for (const id in pages) {
+        const item = pages[id];
+        const info = item.imageinfo?.[0];
+        if (info && info.url) {
+          // 撮影日時の取得
+          const rawDate = info.extmetadata?.DateTimeOriginal?.value || info.extmetadata?.DateTime?.value || "";
+          const matchYear = rawDate.match(/(19\d\d|20\d\d)/);
+          const year = matchYear ? parseInt(matchYear[1], 10) : null;
+
+          currentFoundPhotos.push({
+            id: id,
+            title: item.title.replace("File:", ""),
+            url: info.url,
+            year: year,
+            rawDate: rawDate
+          });
+        }
       }
+
+      // 年代順にソート（古い順）
+      currentFoundPhotos.sort((a, b) => (a.year || 9999) - (b.year || 9999));
+
+      // 現在選択されている年代フィルターを適用
+      filterAndApplyEraPhoto();
     }
 
-    // 起動時
     window.addEventListener('DOMContentLoaded', () => {
       renderSlotUI();
       selectSlot(0);
